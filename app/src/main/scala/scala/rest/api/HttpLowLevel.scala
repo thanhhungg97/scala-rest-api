@@ -3,11 +3,11 @@ package scala.rest.api
 import akka.actor.ActorSystem
 import akka.event.slf4j.Logger
 import akka.http.scaladsl.Http
-import akka.stream.scaladsl._
 import akka.http.scaladsl.model.HttpMethods._
-import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpRequest, HttpResponse, Uri}
+import akka.http.scaladsl.model._
 
 import scala.concurrent.Future
+import scala.util.{Failure, Success}
 
 object HttpLowLevel {
 
@@ -37,8 +37,11 @@ object HttpLowLevel {
 		}
 
 
-	 	 val bindFuture: Future[Http.ServerBinding] = Http().newServerAt("localhost", 8080).bindSync(requestHandler)
-
+		val bindFuture: Future[Http.ServerBinding] = Http().newServerAt("localhost", 8080).bindSync(requestHandler)
+		bindFuture.onComplete {
+			case Success(value) => logger.info("Binding successfully {}", value);
+			case Failure(exception) => logger.info("Binding fail", exception)
+		}
 	}
 
 
